@@ -1,0 +1,3 @@
+#!/bin/sh
+
+autopep8 . -d -r -a -a -a --exclude=env,.mypy_cache,.github,.vscode,instructions --exit-code --max-line-length 79 --ignore-local-config
