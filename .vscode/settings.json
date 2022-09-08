@@ -1,0 +1,22 @@
+{
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.codeActionsOnSave": [
+            "source.fixAll",
+            "source.organizeImports",
+        ],
+        "editor.rulers": [
+            79
+        ]
+    },
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "79",
+    ],
+    "python.formatting.autopep8Path": "env/bin/autopep8",
+    "python.linting.mypyEnabled": true,
+}
