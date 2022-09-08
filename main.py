@@ -1,9 +1,7 @@
 
 def main() -> None:
-    t = 'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaa' +'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii'
-
-
-
+    t = 'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaa' + \
+        'thisiiiiiiiiiiiaaaaaaaa' + 'thisiiiiiiiiiiiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii'
 
 
 if __name__ == '__main__':
