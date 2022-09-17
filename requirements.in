@@ -1,0 +1,17 @@
+autopep8
+build
+click
+mypy
+mypy-extensions
+packaging
+pep517
+pycodestyle
+pyparsing
+toml
+tomli
+typing_extensions
+pybullet
+numpy
+scipy
+cvxpy
+matplotlib
