@@ -25,8 +25,8 @@ class Robot:
             self.__control_mode,
             targetPositions=command)
 
-    def get_states(self) -> list[Any]:
-        return [p.getJointStates(self.id, self.__joint_ids)]
+    def get_states(self) -> Any:
+        return p.getJointStates(self.id, self.__joint_ids)
 
     def get_positions(self) -> list[float]:
         return [state[0] for state in self.get_states()]
