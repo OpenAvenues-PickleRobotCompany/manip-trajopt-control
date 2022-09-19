@@ -1,4 +1,3 @@
-# Welcome to your organization's demo respository
-This code repository (or "repo") is designed to demonstrate the best GitHub has to offer with the least amount of noise.
+# Welcome to Optimize the Trajectory of a Robot Manipulator
 
-The repo includes an `index.html` file (so it can render a web page), two GitHub Actions workflows, and a CSS stylesheet dependency.
+To get started please follow the instructions located in the instructions folder.
