@@ -3,6 +3,7 @@ import math
 import numpy as np
 from numpy import random
 from pytest import approx
+
 from src.robot.robot import Robot2R
 
 pi = math.pi
@@ -11,6 +12,13 @@ pi = math.pi
 def create_robot():
     link_lengths = (50, 40)
     test_robot = Robot2R(link_lengths)
+    return test_robot
+
+
+def create_robot_wbounds():
+    link_lengths = (60.0, 40.0)
+    bounds = ((-2 * pi, 2 * pi), (-3 / 4 * pi, 3 / 4 * pi))
+    test_robot = Robot2R(link_lengths, bounds)
     return test_robot
 
 
@@ -73,11 +81,31 @@ def test_daniel():
 
     configuration_1 = (math.pi, math.pi / 2)
     test_1 = testclass.forward_kinematics(configuration_1)
-    assert -31 < test_1[0] < 29 and -21 < test_2 < -19
+    assert approx(test_1) == (-30, -20)
 
-    configuration_2 = (-math.pi / 2, 0)
-    test_2 = testclass.forward_kinematics(configuration_2)
-    assert approx(test_2 == (0, -50))
+    test_2 = testclass.inverse_kinematics(testclass.forward_kinematics(configuration_1))
+    test_2 = np.abs(test_2)
+    assert approx(test_2) == configuration_1
 
-    test_3 = testclass.inverse_kinematics(testclass.forward_kinematics(configuration_1))
-    assert approx(test_3 == configuration_1)
+    configuration_3 = (-math.pi / 2, 0)
+    test_3 = testclass.forward_kinematics(configuration_3)
+    assert approx(test_3) == (0, -50)
+
+
+def test_bounds():
+    test_robot = create_robot_wbounds()
+
+    # Forward Kinematics
+    configuration1 = (pi / 3, pi)
+    test1 = test_robot.forward_kinematics(configuration1)
+    assert test1 == None
+
+    configuration2 = (3 * pi, 0)
+    assert test_robot.forward_kinematics(configuration2) == None
+
+    # Inverse Kinematics
+    xRef_OutsidePositionalSpace = (110, 0)
+    assert test_robot.inverse_kinematics(xRef_OutsidePositionalSpace) == None
+
+    xRef_InsidePositionalSpace = (19, 0)
+    assert test_robot.inverse_kinematics(xRef_InsidePositionalSpace) == None
