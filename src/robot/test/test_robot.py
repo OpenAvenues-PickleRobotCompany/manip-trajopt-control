@@ -7,6 +7,7 @@ from src.robot.robot import Robot2R
 
 pi = math.pi
 
+
 def create_robot():
     link_lengths = (50, 40)
     test_robot = Robot2R(link_lengths)
@@ -61,3 +62,22 @@ def test_inverse_kinematics():
             count += 1
 
     assert count / 100 < 0.2
+
+
+def test_daniel():
+    ## Testing ##
+    link_lengths = (30, 20)
+    bounds = (-2 * math.pi, 2 * math.pi)
+
+    testclass = Robot2R(link_lengths)
+
+    configuration_1 = (math.pi, math.pi / 2)
+    test_1 = testclass.forward_kinematics(configuration_1)
+    assert -31 < test_1[0] < 29 and -21 < test_2 < -19
+
+    configuration_2 = (-math.pi / 2, 0)
+    test_2 = testclass.forward_kinematics(configuration_2)
+    assert approx(test_2 == (0, -50))
+
+    test_3 = testclass.inverse_kinematics(testclass.forward_kinematics(configuration_1))
+    assert approx(test_3 == configuration_1)
