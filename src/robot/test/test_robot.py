@@ -7,7 +7,6 @@ from src.robot.robot import Robot2R
 
 pi = math.pi
 
-
 def create_robot():
     link_lengths = (50, 40)
     test_robot = Robot2R(link_lengths)
