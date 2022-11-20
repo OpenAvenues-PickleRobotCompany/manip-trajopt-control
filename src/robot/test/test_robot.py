@@ -31,12 +31,14 @@ def test_forward_kinematics():
     assert approx(robot.forward_kinematics((-pi / 2, 0))) == (0, -90)
     assert approx(robot.forward_kinematics((pi / 6, 0))) == (math.sqrt(3) * 45, 45)
 
-    # Testing using random samples
-    positions = random.randint(5, high=80, size=(1000, 2))
-    for xy in positions:
-        magnitude = np.linalg.norm(xy)
-        if 100 <= magnitude**2 <= 8100:
-            assert approx(robot.forward_kinematics(robot.inverse_kinematics(xy))) == xy
+    r = np.linspace(10, 87, num=100)
+    t = np.linspace(-pi, pi, 100)
+    for theta in t:
+        for radius in r:
+            (x, y) = (radius * math.cos(theta), radius * math.sin(theta))
+            assert approx(
+                robot.forward_kinematics(robot.inverse_kinematics((x, y)))
+            ) == (x, y)
 
 
 def test_inverse_kinematics():
@@ -48,28 +50,24 @@ def test_inverse_kinematics():
     assert approx(robot.inverse_kinematics((0, -90))) == (-pi / 2, 0)
     assert approx(robot.inverse_kinematics((math.sqrt(3) * 45, 45))) == (pi / 6, 0)
 
-    # Testing using random samples
-    a1 = random.uniform(low=-pi, high=pi, size=(100,))
-    a2 = random.uniform(low=0.0, high=3 * pi / 4, size=(100,))
-    configurations = np.zeros((100, 2))
-    configurations[:, 0] = a1
-    configurations[:, 1] = a2
-    count = 0
+    a1_ub = pi - math.tan(
+        4 / 3
+    )  # Restriction added to prevent: (x,y) in Q3 while a2 > 0
+    a1 = random.uniform(low=-pi, high=a1_ub, size=(100,))
+    a2 = random.uniform(low=0.0, high=pi, size=(100,))
 
-    for i in range(configurations.shape[0]):
-        try:
-            assert (
-                approx(
-                    robot.inverse_kinematics(
-                        robot.forward_kinematics(configurations[i])
-                    )
-                )
-                == configurations[i]
-            )
-        except AssertionError:
-            count += 1
+    configurations = []
+    for x in a1:
+        for y in a2:
+            configurations.append((x, y))
+    configs = np.array(configurations)
 
-    assert count / 100 < 0.2
+    # Testing configuration space
+    for i in range(configs.shape[0]):
+        assert (
+            approx(robot.inverse_kinematics(robot.forward_kinematics(configs[i])))
+            == configs[i]
+        )
 
 
 def test_daniel():

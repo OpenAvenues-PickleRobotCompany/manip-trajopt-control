@@ -19,33 +19,32 @@ class Robot2R:
         link_lengths: tuple[float, float],
         bounds: Optional[tuple[BOUNDS, BOUNDS]] = None,
     ) -> None:
-        self.l1 = link_lengths[0]
-        self.l2 = link_lengths[1]
+        if link_lengths[0] > link_lengths[1] and link_lengths[1] > 0:
+            self.l1 = link_lengths[0]
+            self.l2 = link_lengths[1]
+        else:
+            print("Error: Invalid link_lengths")
+            self.l1, self.l2 = None, None
 
-        if bounds:
+        if bounds != None:
             (self.lb1, self.ub1) = bounds[0][0], bounds[0][1]
             (self.lb2, self.ub2) = bounds[1][0], bounds[1][1]
         else:
             self.lb1, self.ub1, self.lb2, self.ub2 = None, None, None, None
 
     def forward_kinematics(self, configuration: CONFIG) -> XY:
-        # Checking for bounds
         l1, l2 = self.l1, self.l2
         a1, a2 = configuration[0], configuration[1]
-        if self.lb1:
-            lb1, lb2, ub1, ub2 = self.lb1, self.lb2, self.ub1, self.ub2
-            if not (lb1 <= a1 <= ub1 and lb2 <= a2 <= ub2):
-                print("Error: Impossible configuration.")
-                return
 
-        theta1 = configuration[0]
-        theta2 = configuration[1]
+        if not self.__within_bounds(a1, a2):
+            print("Error: Impossible configuration.")
+            return
 
         l1 = self.l1
         l2 = self.l2
 
-        x = l1 * math.cos(theta1) + l2 * math.cos(theta1 + theta2)
-        y = l1 * math.sin(theta1) + l2 * math.sin(theta1 + theta2)
+        x = l1 * math.cos(a1) + l2 * math.cos(a1 + a2)
+        y = l1 * math.sin(a1) + l2 * math.sin(a1 + a2)
 
         return (x, y)
 
@@ -53,47 +52,49 @@ class Robot2R:
         x, y = end_effector_position[0], end_effector_position[1]
         l1, l2 = self.l1, self.l2
 
-        fraction = (x**2 + y**2 - l1**2 - l2**2) / (2 * l1 * l2)
+        cos_a2 = (x**2 + y**2 - l1**2 - l2**2) / (2 * l1 * l2)
 
-        if np.linalg.norm(fraction) > 1:  # Out of working space
-            print("No IK solution found")
+        if math.fabs(cos_a2) > 1:
+            print(f"Error: Position {XY} is not within workspace")
             return
 
-        elif fraction == 1:  # Both joints aligned
-            return (math.atan2(y, x), 0)
+        elif math.fabs(cos_a2) == 1:
+            a1 = math.atan2(y, x)
+            a2 = math.acos(cos_a2)
 
-        ### First solution
-        a2 = math.acos(fraction)
-        if x != 0:
-            a1 = math.atan2(y, x) - math.atan2(
-                l2 * math.sin(a2), l1 + l2 * math.cos(a2)
-            )
-        solution1 = (a1, a2)
-
-        ### Second solution
-        second_a2 = -a2
-        if x != 0:
-            second_a1 = math.atan(y / x) - math.atan(
-                (l2 * math.sin(second_a2)) / (l1 + l2 * math.cos(second_a2))
-            )
-        solution2 = (second_a1, second_a2)
-
-        if self.lb1:
-            lb1, lb2, ub1, ub2 = self.lb1, self.lb2, self.ub1, self.ub2
-            ### Checking for solutions
-            if lb1 <= a1 <= ub1 and lb2 <= a2 <= ub2:
-                if lb1 <= second_a1 <= ub1 and lb2 <= second_a2 <= ub2:
-                    print("Two solutions found:", solution1, solution2)
-                return solution1
-
-            elif lb1 <= second_a1 <= ub1 and lb2 <= second_a2 <= ub2:
-                return solution2
-
+            if self.__within_bounds(a1, a2):
+                return (a1, a2)
             else:
-                print("No IK solution found")
+                print(f"Error: Position {XY} is not within bounds")
                 return
+
         else:
-            return solution1
+            aXY = [math.atan2(y, x)] * 2  # angles towards reference
+            a2 = [math.acos(cos_a2), -math.acos(cos_a2)]  # elbow up or down
+            a1 = aXY - np.arctan2(l2 * np.sin(a2), l1 + l2 * np.cos(a2))
+
+            config = []
+
+            for i in range(2):
+                if self.__within_bounds(a1[i], a2[i]):
+                    config.append((a1[i], a2[i]))
+
+            if config:
+                return config[0]  # Returns elbow-up solution first if valid
+            else:
+                print(f"Error: Position {XY} is not within bounds")
+                return
+
+    def __within_bounds(self, a1, a2):
+        """Return whether congfiguration is within bounds"""
+        within_bounds = True
+
+        if self.lb1 and self.lb2 and self.ub1 and self.ub2:
+            lb1, lb2, ub1, ub2 = self.lb1, self.lb2, self.ub1, self.ub2
+            if not (lb1 <= a1 <= ub1 and lb2 <= a2 <= ub2):
+                within_bounds = False
+
+        return within_bounds
 
 
 class Robot3R:
@@ -104,6 +105,7 @@ class Robot3R:
         link_lengths: tuple[float, float, float],
         bounds: Optional[tuple[BOUNDS, BOUNDS, BOUNDS]] = None,
     ) -> None:
+        raise NotImplementedError("3R Robot not implemented")
         ...
 
     def forward_kinematics(self, configuration: CONFIG) -> XY:
