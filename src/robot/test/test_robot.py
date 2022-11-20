@@ -31,7 +31,7 @@ def test_forward_kinematics():
     assert approx(robot.forward_kinematics((-pi / 2, 0))) == (0, -90)
     assert approx(robot.forward_kinematics((pi / 6, 0))) == (math.sqrt(3) * 45, 45)
 
-    r = np.linspace(10, 87, num=100)
+    r = np.linspace(10, 89.99, num=100)
     t = np.linspace(-pi, pi, 100)
     for theta in t:
         for radius in r:
@@ -56,18 +56,13 @@ def test_inverse_kinematics():
     a1 = random.uniform(low=-pi, high=a1_ub, size=(100,))
     a2 = random.uniform(low=0.0, high=pi, size=(100,))
 
-    configurations = []
-    for x in a1:
-        for y in a2:
-            configurations.append((x, y))
-    configs = np.array(configurations)
-
-    # Testing configuration space
-    for i in range(configs.shape[0]):
-        assert (
-            approx(robot.inverse_kinematics(robot.forward_kinematics(configs[i])))
-            == configs[i]
-        )
+    for angle1 in a1:
+        for angle2 in a2:
+            config = (angle1, angle2)
+            assert (
+                approx(robot.inverse_kinematics(robot.forward_kinematics(config)))
+                == config
+            )
 
 
 def test_daniel():
